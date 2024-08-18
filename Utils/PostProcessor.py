@@ -9,23 +9,24 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from matplotlib.gridspec import GridSpec
 
-from Utils import CalcPolygonVertex
+from Utils import PolygonVertex
 from Utils import FuncCollection
+from Utils.CellParameters import CellParameters
 
 
-class PostEditor:
-    def __init__(self, **kwargs) -> None:
-        self.__dict__.update(kwargs)
+class PostProcessor:
+    def __init__(self, instance: CellParameters) -> None:
+        self.params = instance
 
     def proc_draw(self, export_keys: tuple, coords_incell: np.ndarray, coords_outcell: np.ndarray) -> Axes:
         #
         ax1, ax2 = self._set_axes()
 
         #
-        dia = self.__dict__["dia_prod"]
+        dia = self.params.dia_prod
         self._draw_product(ax1, dia, facecolor="None")
         self._draw_product(ax1, dia, transparency=0.5)
-        dia += -2.0 * self.__dict__["thk_prod"]
+        dia += -2.0 * self.params.thk_prod
         self._draw_product(ax1, dia, facecolor="None", transparency=1.0, linestyle="dashed")
 
         #
@@ -38,7 +39,7 @@ class PostEditor:
         self._set_table(ax2)
 
         #
-        coords = FuncCollection.regroup_by_slit(self.__dict__["thk_i2o"], coords_incell, coords_outcell)
+        coords = FuncCollection.regroup_by_slit(self.params.thk_i2o, coords_incell, coords_outcell)
         self.dummy_oc = self._dummy_xdir(coords_outcell)
         self.dummy_ic_main_x = self._dummy_xdir(coords[0])
         self.dummy_ic_top = self._dummy_xdir(coords[1])
@@ -65,7 +66,7 @@ class PostEditor:
         ax1.set_aspect("equal", adjustable="datalim")
 
         #
-        scale = 0.52 * self.__dict__["dia_prod"]
+        scale = 0.52 * self.params.dia_prod
         ax1.set_xlim(-scale, scale)
         ax1.set_ylim(-scale, scale)
 
@@ -94,35 +95,36 @@ class PostEditor:
         ax.add_patch(circle)
 
     def _draw_slit(self, ax: Axes, coords_slit: np.ndarray) -> None:
-        radius_prod = 0.5 * self.__dict__["dia_prod"]
-        thk_slit = self.__dict__["thk_slit"]
-        slit_vetex = [CalcPolygonVertex.slit(radius_prod, thk_slit, y) for y in coords_slit[:, 1]]
+        radius_prod = 0.5 * self.params.dia_prod
+        thk_slit = self.params.thk_slit
+        slit_vetex = [PolygonVertex.slit(radius_prod, thk_slit, y) for y in coords_slit[:, 1]]
         polygons = [patches.Polygon(slit, facecolor="#97B6D8", linewidth=0, alpha=0.1) for slit in slit_vetex]
         [ax.add_patch(polygon) for polygon in polygons]
 
     def _draw_incell(self, ax: Axes, coords_incell: np.ndarray) -> None:
-        thk_mem = self.__dict__["thk_bot"] + self.__dict__["thk_mid"] + self.__dict__["thk_top"]
-        radius = 0.5 * self.__dict__["dia_incell"] - 2.0 * thk_mem
+        thk_mem = self.params.thk_top + self.params.thk_mid + self.params.thk_bot
+        radius = 0.5 * self.params.dia_incell - 2.0 * thk_mem
         circles = [patches.Circle(xy, radius, facecolor="#4F81BD") for xy in coords_incell]
         [ax.add_patch(circle) for circle in circles]
 
     def _draw_outcell(self, ax: Axes, coords_outcell: np.ndarray) -> None:
-        vertex = CalcPolygonVertex.octagon(self.__dict__["thk_cc"], self.__dict__["thk_x1"], self.__dict__["thk_y1"])
+        vertex = PolygonVertex.octagon(self.params.thk_cc, self.params.thk_x1, self.params.thk_y1)
         oct_mat = coords_outcell + vertex[:, np.newaxis]
         oct_mat = np.transpose(oct_mat, (1, 0, 2))
         polygons = [patches.Polygon(vertex, facecolor="#76913C", linewidth=0) for vertex in oct_mat]
         [ax.add_patch(polygon) for polygon in polygons]
 
     def _calc_params(self, export_keys: tuple, coords_incell: np.ndarray, coords_outcell: np.ndarray) -> None:
-        self.export_params = {key: self.__dict__[key] for key in export_keys}
-
-        thk_mem = self.__dict__["thk_top"] + self.__dict__["thk_mid"] + self.__dict__["thk_bot"]
-        diameter_effective = self.__dict__["dia_incell"] - 2.0 * thk_mem
+        #
+        thk_mem = self.params.thk_top + self.params.thk_mid + self.params.thk_bot
+        diameter_effective = self.params.dia_incell - 2.0 * thk_mem
         area_incell = 0.25 * (np.pi * diameter_effective**2.0)
-        area_prod = 0.25 * (np.pi * self.__dict__["dia_prod"] ** 2.0)
-        area_mem = np.pi * diameter_effective * self.__dict__["ln_prod"] * coords_incell.shape[0]
+        area_prod = 0.25 * (np.pi * self.params.dia_prod**2.0)
+        area_mem = np.pi * diameter_effective * self.params.ln_prod * coords_incell.shape[0]
         total_area_incell = area_incell * coords_incell.shape[0]
 
+        #
+        self.export_params = {key: getattr(self.params, key) for key in export_keys}
         self.export_params["N(incell)"] = coords_incell.shape[0]
         self.export_params["N(outcell)"] = coords_outcell.shape[0]
         self.export_params["N(slit)"] = np.unique(coords_outcell[:, 1]).shape[0]
@@ -160,13 +162,13 @@ class PostEditor:
         #
         num = np.arange(1, cnt + 1, 1)
         coords_right = np.tile(right, (cnt, 1)).reshape(cnt, coords_y.shape[0], 2)
-        offset_x = num * self.__dict__["pitch_x"]
+        offset_x = num * self.params.pitch_x
         offset_mat = np.column_stack([offset_x, np.zeros_like(offset_x)])
         coords_right += offset_mat[:, np.newaxis]
 
         #
         coords_left = np.tile(left, (cnt, 1)).reshape(cnt, coords_y.shape[0], 2)
-        offset_x = num * -self.__dict__["pitch_x"]
+        offset_x = num * -self.params.pitch_x
         offset_mat = np.column_stack([offset_x, np.zeros_like(offset_x)])
         coords_left += offset_mat[:, np.newaxis]
 
@@ -182,9 +184,9 @@ class PostEditor:
         #
         top = np.tile(ref_top, (cnt, 1)).reshape(cnt, ref_top.shape[0], 2)
         num = np.arange(1, cnt + 1, 1)
-        offset_y = num * self.__dict__["pitch_y"]
+        offset_y = num * self.params.pitch_y
         offset_mat = np.zeros(top.shape)
-        offset_mat[::2, :, 0] += 0.5 * self.__dict__["pitch_x"]
+        offset_mat[::2, :, 0] += 0.5 * self.params.pitch_x
         offset_mat[:, :, 1] += offset_y[:, np.newaxis]
         coords_top = top + offset_mat
 
@@ -197,9 +199,9 @@ class PostEditor:
         #
         btm = np.tile(ref_btm, (cnt, 1)).reshape(cnt, ref_btm.shape[0], 2)
         num = np.arange(1, cnt + 1, 1)
-        offset_y = num * -self.__dict__["pitch_y"]
+        offset_y = num * -self.params.pitch_y
         offset_mat = np.zeros(btm.shape)
-        offset_mat[::2, :, 0] += 0.5 * self.__dict__["pitch_x"]
+        offset_mat[::2, :, 0] += 0.5 * self.params.pitch_x
         offset_mat[:, :, 1] += offset_y[:, np.newaxis]
         coords_btm = btm + offset_mat
 

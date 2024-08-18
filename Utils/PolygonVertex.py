@@ -25,54 +25,47 @@ def slit(radius_prod: float, thk_slit: float, y: float) -> np.ndarray:
 
 
 def hexagon(radius_incircle: float) -> np.ndarray:
-    #
     circumscribed_radius = radius_incircle / np.cos(np.pi / 6)
-
-    #
-    angles = np.arange(-np.pi / 6, 3 * np.pi / 2, np.pi / 3)
-
-    #
+    angles = np.deg2rad(np.arange(-30, 330, 60))
     hex_points = circumscribed_radius * np.column_stack((np.cos(angles), np.sin(angles)))
-
     return hex_points
 
 
 def heptagon(radius_incircle: float, rot_angle: float = 0.0) -> np.ndarray:
     #
     circumscribed_radius = radius_incircle / np.cos(np.pi / 6)
+    angles = np.deg2rad(np.arange(-30, 270, 60))
+    hex_points = circumscribed_radius * np.column_stack((np.cos(angles), np.sin(angles)))
 
     #
-    angles_5_points = np.arange(-np.pi / 6, 4 * np.pi / 3, np.pi / 3)
-    hep_points = circumscribed_radius * np.column_stack((np.cos(angles_5_points), np.sin(angles_5_points)))
-
-    #
-    angles_2_points = np.array([4 * np.pi / 3, 5 * np.pi / 3])
-    dummy_points = radius_incircle * np.column_stack((np.cos(angles_2_points), np.sin(angles_2_points)))
-
-    #
-    hep_points = np.vstack([hep_points, dummy_points])
+    tmp_points = np.array(
+        [
+            (-radius_incircle * np.cos(np.pi / 3), -radius_incircle * np.sin(np.pi / 3)),
+            (radius_incircle * np.cos(np.pi / 3), -radius_incircle * np.sin(np.pi / 3)),
+        ]
+    )
+    res = np.vstack([hex_points, tmp_points])
 
     #
     radian = np.deg2rad(rot_angle)
     rot_mat = np.array([[np.cos(radian), -np.sin(radian)], [np.sin(radian), np.cos(radian)]])
-    hep_points = np.dot(hep_points, rot_mat)
+    res = np.dot(res, rot_mat)
+    return res
 
-    return hep_points
 
-
-def octagon(thk_cc: float, thk_x1: float, thk_y1: float) -> np.ndarray:
-    #
+def octagon(width: float, hight: float, x1: float, y1: float) -> np.ndarray:
+    dx = 0.5 * width
+    dy = 0.5 * hight
     oct_points = np.array(
         [
-            (thk_x1 + thk_cc, thk_y1),
-            (thk_x1, thk_y1 + thk_cc),
-            (-thk_x1, thk_y1 + thk_cc),
-            (-(thk_x1 + thk_cc), thk_y1),
+            (dx, dy - y1),
+            (dx - x1, dy),
+            (-(dx + x1), dy),
+            (-dx, dy - y1),
         ]
     )
 
     #
     rot_mat = np.array([[np.cos(np.pi), -np.sin(np.pi)], [np.sin(np.pi), np.cos(np.pi)]])
     dummy_points = np.dot(oct_points, rot_mat)
-
     return np.vstack([oct_points, dummy_points])

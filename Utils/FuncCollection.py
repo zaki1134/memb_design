@@ -1,6 +1,3 @@
-# type hints
-from typing import Tuple
-
 import numpy as np
 
 
@@ -10,7 +7,6 @@ def filter_polygon(limit_radius: float, vertex: np.ndarray, coords: np.ndarray) 
     radius_mat: np.ndarray = np.linalg.norm(vertex_mat, axis=-1)
     check = radius_mat < limit_radius
     mask = np.all(check, axis=1)
-
     return coords[mask]
 
 
@@ -18,7 +14,7 @@ def regroup_by_slit(
     thk_i2o: float,
     coords_incell: np.ndarray,
     coords_outcell: np.ndarray,
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     y_unit = np.unique(coords_outcell[:, 1])
     y_top = y_unit + thk_i2o
     y_btm = y_unit - thk_i2o
