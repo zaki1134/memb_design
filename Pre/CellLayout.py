@@ -1,6 +1,6 @@
 import numpy as np
 
-from Utils.CellParameters import CellParameters
+from Pre.CellParameters import CellParameters
 from Utils import FuncCollection
 from Utils import PolygonVertex
 

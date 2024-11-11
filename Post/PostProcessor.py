@@ -11,7 +11,7 @@ from matplotlib.gridspec import GridSpec
 
 from Utils import PolygonVertex
 from Utils import FuncCollection
-from Utils.CellParameters import CellParameters
+from PRE.CellParameters import CellParameters
 
 
 class PostProcessor:

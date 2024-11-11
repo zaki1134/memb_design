@@ -4,7 +4,6 @@ import numpy as np
 
 @dataclass(frozen=True)
 class CellParameters:
-    # unit: mm
     index: int
     shape_incell: str
     shape_outcell: str

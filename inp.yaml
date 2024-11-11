@@ -1,0 +1,27 @@
+# unit:mm
+parameters: {
+    shape_incell: circle, # circle, hexagon
+    shape_outcell: octagon, # octagon
+    dia_incell: 2.00,
+    thk_top: 0.00,
+    thk_mid: 0.00,
+    thk_wall: 0.500,
+    thk_c2s: 0.500,
+    dia_prod: 60.0,
+    thk_prod: 1.0,
+    thk_outcell: 1.0,
+    thk_wall_outcell: 0.5,
+    thk_slit: 0.5,
+    ln_prod: 1000.0,
+    ratio_slit: 3,
+    mode_cell: FALSE,
+    mode_slit: FALSE,
+  }
+# pitch_x: 2.5000E+00
+# pitch_y: 2.1651E+00
+# pitch_slit: 8.3301E+00
+# thk_i2o: 2.0000E+00
+# thk_cc: 3.0000E-01
+# thk_x1: 7.0000E-01
+# thk_y1: 2.0000E-01
+# lim_slit: 2.6000E+01
