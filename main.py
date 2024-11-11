@@ -11,42 +11,18 @@ from Utils.FileManager import read_yaml
 
 
 def main() -> None:
-    inp = {
-        "index": 0,
-        "shape_incell": "hexagon",  # "circle", "hexagon"
-        "shape_outcell": "octagon",
-        "dia_incell": 3.0,
-        "thk_top": 0.020,
-        "thk_mid": 0.250,
-        "thk_bot": 0.000,
-        "thk_wall": 0.500,
-        "thk_c2s": 0.500,
-        "dia_prod": 30.000,
-        "thk_prod": 1.000,
-        "thk_outcell": 1.000,
-        "thk_wall_outcell": 0.500,
-        "thk_slit": 0.500,
-        "ratio_slit": 3,
-        "mode_cell": False,
-        "mode_slit": False,
-        "ln_prod": 1000.0,
-    }
-    parser = argparse.ArgumentParser(description="Process input YAML file.")
-    parser.add_argument("--inp", type=str, help="Path to the input YAML file")
+    parser = argparse.ArgumentParser(description="Cell Layout Generator")
+    parser.add_argument("--i", type=str, help="inp.yaml", required=False)
     args = parser.parse_args()
 
-    input_file_path = Path(args.inp).resolve()
-    print(f"Full path to the input YAML file: {input_file_path}")
+    data = read_yaml(Path(args.i).resolve())
+    inp = data["parameters"]
 
-    # data = read_yaml(args.input_file)
-    # data = read_yaml("inp.yaml")
-    # print(data["parameters"])
-
-    # try:
-    #     params = CellParameters(**inp)
-    # except Exception as e:
-    #     print(e)
-    #     return None
+    try:
+        params = CellParameters(**inp)
+    except Exception as e:
+        print(e)
+        return None
 
     # # obj = CircleOctagon(params)
     # obj = HexgonOctagon(params)

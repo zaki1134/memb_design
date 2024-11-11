@@ -4,13 +4,11 @@ import numpy as np
 
 @dataclass(frozen=True)
 class CellParameters:
-    index: int
     shape_incell: str
     shape_outcell: str
     dia_incell: float
     thk_top: float
     thk_mid: float
-    thk_bot: float
     thk_wall: float
     thk_c2s: float
     dia_prod: float
@@ -87,8 +85,6 @@ class CellParameters:
 
     def __type_check(self) -> None:
         name = self.__class__.__name__
-        if not isinstance(self.index, int):
-            raise TypeError(f"{name}: 'index' must be an integer")
         if not isinstance(self.shape_incell, str):
             raise TypeError(f"{name}: 'shape_incell' must be a string")
         if not isinstance(self.shape_outcell, str):
@@ -99,8 +95,6 @@ class CellParameters:
             raise TypeError(f"{name}: 'thk_top' must be a float")
         if not isinstance(self.thk_mid, float):
             raise TypeError(f"{name}: 'thk_mid' must be a float")
-        if not isinstance(self.thk_bot, float):
-            raise TypeError(f"{name}: 'thk_bot' must be a float")
         if not isinstance(self.thk_wall, float):
             raise TypeError(f"{name}: 'thk_wall' must be a float")
         if not isinstance(self.thk_c2s, float):
@@ -130,8 +124,6 @@ class CellParameters:
 
     def __value_check(self) -> None:
         name = self.__class__.__name__
-        if self.index < 0:
-            raise ValueError(f"{name}: 'index' must be greater than or equal to 0")
         if self.shape_incell not in ["circle", "hexagon"]:
             raise ValueError(f"{name}: 'mode_cell' must be either 'circle' or 'hexagon'")
         if self.shape_outcell not in ["octagon"]:
@@ -142,8 +134,6 @@ class CellParameters:
             raise ValueError(f"{name}: 'thk_top' must be greater than or equal to 0")
         if self.thk_mid < 0:
             raise ValueError(f"{name}: 'thk_mid' must be greater than or equal to 0")
-        if self.thk_bot < 0:
-            raise ValueError(f"{name}: 'thk_bot' must be greater than or equal to 0")
         if self.thk_wall <= 0:
             raise ValueError(f"{name}: 'thk_wall' must be greater than 0")
         if self.thk_c2s <= 0:
@@ -173,16 +163,15 @@ class CellParameters:
 
         name = self.__class__.__name__
 
-        # dia_incell, thk_top, thk_mid, thk_bot
-        value = self.dia_incell - 2 * (self.thk_top + self.thk_mid + self.thk_bot)
+        # dia_incell, thk_top, thk_mid
+        value = self.dia_incell - 2 * (self.thk_top + self.thk_mid)
         eps = 1.0e-1
         if value < eps:
             message = [
-                f"{name}: 'dia_incell' must be greater than 2*(thk_top + thk_mid + thk_bot)",
+                f"{name}: 'dia_incell' must be greater than 2*(thk_top + thk_mid)",
                 f"dia_incell: {self.dia_incell}",
                 f"thk_top: {self.thk_top}",
                 f"thk_mid: {self.thk_mid}",
-                f"thk_bot: {self.thk_bot}",
             ]
             raise ValueError("\n".join(message))
 
