@@ -5,27 +5,32 @@ from Pre.CellParameters import CellParameters
 from Pre.CellLayout import CircleOctagon
 from Pre.CellLayout import HexgonOctagon
 from Post.ExportQuadrant import Quadrant
-from Post.ExportJSON import ExportJSON
 
 from Utils.FileManager import read_yaml
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Cell Layout Generator")
-    parser.add_argument("--i", type=str, help="inp.yaml", required=False)
-    args = parser.parse_args()
+    # parser = argparse.ArgumentParser(description="Cell Layout Generator")
+    # parser.add_argument("--i", type=str, required=False, help="inp.yaml")
+    # args = parser.parse_args()
 
-    data = read_yaml(Path(args.i).resolve())
+    # data = read_yaml(Path(args.i).resolve())
+    data = read_yaml("inp.yaml")
     inp = data["parameters"]
+    for key, value in inp.items():
+        print(f"{key}: {value}")
 
     try:
         params = CellParameters(**inp)
     except Exception as e:
         print(e)
-        return None
+        return
 
-    # # obj = CircleOctagon(params)
-    # obj = HexgonOctagon(params)
+    if params.mode_cell == "circle":
+        obj = CircleOctagon(params)
+    elif params.mode_cell == "hexagon":
+        obj = HexgonOctagon(params)
+
     # obj.execute_calc()
 
     # ExportJSON(
