@@ -2,6 +2,7 @@ import numpy as np
 
 
 def filter_polygon(limit_radius: float, vertex: np.ndarray, coords: np.ndarray) -> np.ndarray:
+    """多角形頂点座標が限界半径内にすべて収まる多角形中心座標を抽出する"""
     vertex_mat = coords + vertex[:, np.newaxis]
     vertex_mat = np.transpose(vertex_mat, (1, 0, 2))
     radius_mat: np.ndarray = np.linalg.norm(vertex_mat, axis=-1)

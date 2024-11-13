@@ -9,9 +9,9 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from matplotlib.gridspec import GridSpec
 
-from Utils import PolygonVertex
-from Utils import FuncCollection
-from PRE.CellParameters import CellParameters
+from Solver import PolygonVertex
+from Solver import FuncCollection
+from Utils import CellParameters
 
 
 class PostProcessor:

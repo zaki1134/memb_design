@@ -1,44 +1,44 @@
 from pathlib import Path
 import argparse
 
-from Pre.CellParameters import CellParameters
-from Pre.CellLayout import CircleOctagon
-from Pre.CellLayout import HexgonOctagon
-from Post.ExportQuadrant import Quadrant
-
-from Utils.FileManager import read_yaml
+from Solver import CellParameters, CircleOctagon, HexgonOctagon
+from Utils import read_yaml
 
 
 def main() -> None:
+    # コマンドライン引数の取得
     # parser = argparse.ArgumentParser(description="Cell Layout Generator")
     # parser.add_argument("--i", type=str, required=False, help="inp.yaml")
     # args = parser.parse_args()
 
+    # inp.yamlの読み込み
     # data = read_yaml(Path(args.i).resolve())
-    data = read_yaml("inp.yaml")
+    data = read_yaml("inp.yaml")  # temp
     inp = data["parameters"]
-    for key, value in inp.items():
-        print(f"{key}: {value}")
 
     try:
         params = CellParameters(**inp)
     except Exception as e:
-        print(e)
-        return
+        raise Exception(f"Error: {e}")
 
-    if params.mode_cell == "circle":
+    if params.shape_incell == "circle" and params.shape_outcell == "octagon":
         obj = CircleOctagon(params)
-    elif params.mode_cell == "hexagon":
+    elif params.shape_incell == "hexagon" and params.shape_outcell == "octagon":
         obj = HexgonOctagon(params)
+    else:
+        raise Exception("Error: Invalid shape")
 
-    # obj.execute_calc()
+    obj.execute_calc()
 
-    # ExportJSON(
-    #     "output",
-    #     obj.params.__dict__,
-    #     obj.coords_incell,
-    #     obj.coords_outcell,
-    # )
+    # Utils.FileManager Quadrantの外だし
+    # post processer 見直し 各種計算の実装
+
+
+if __name__ == "__main__":
+    try:
+        main()
+    except Exception as e:
+        print(e)
 
 
 # export_keys = (
@@ -57,13 +57,3 @@ def main() -> None:
 #     "mode_cell",
 #     "mode_slit",
 # )
-
-# obj.execute_calc()
-# obj.execute_post(export_keys)
-# for x in dir(obj):
-#     print(x)
-# export_to_json(inp, obj.coords_incell, obj.coords_outcell, "output")
-
-
-if __name__ == "__main__":
-    main()
