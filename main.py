@@ -1,7 +1,9 @@
 from pathlib import Path
 import argparse
 
-from Solver import CellParameters, CircleOctagon, HexgonOctagon
+from Pre import Dimensinons
+
+# from Solver import CellParameters, CircleOctagon, HexgonOctagon
 from Utils import read_yaml
 
 
@@ -14,21 +16,22 @@ def main() -> None:
     # inp.yamlの読み込み
     # data = read_yaml(Path(args.i).resolve())
     data = read_yaml("inp.yaml")  # temp
-    inp = data["parameters"]
+    dd = data["draing_dimensions"]
+    Dimensinons(dd["shrinkage_rate"], dd["offset_x"], dd["offset_y"])
 
-    try:
-        params = CellParameters(**inp)
-    except Exception as e:
-        raise Exception(f"Error: {e}")
+    # try:
+    #     params = CellParameters(**inp)
+    # except Exception as e:
+    #     raise Exception(f"Error: {e}")
 
-    if params.shape_incell == "circle" and params.shape_outcell == "octagon":
-        obj = CircleOctagon(params)
-    elif params.shape_incell == "hexagon" and params.shape_outcell == "octagon":
-        obj = HexgonOctagon(params)
-    else:
-        raise Exception("Error: Invalid shape")
+    # if params.shape_incell == "circle" and params.shape_outcell == "octagon":
+    #     obj = CircleOctagon(params)
+    # elif params.shape_incell == "hexagon" and params.shape_outcell == "octagon":
+    #     obj = HexgonOctagon(params)
+    # else:
+    #     raise Exception("Error: Invalid shape")
 
-    obj.execute_calc()
+    # obj.execute_calc()
 
     # Utils.FileManager Quadrantの外だし
     # post processer 見直し 各種計算の実装
