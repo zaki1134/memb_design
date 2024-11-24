@@ -5,34 +5,51 @@ draing_dimensions:
     dia_land_out: 60.0
     dia_land: 54.0
     ln_prod: 1000.0
+    thk_wall: 0.500
     thk_c2s: 0.500
+    offset_x: False # bool
+    offset_y: False # bool
   incell:
-    shape: "circle"
-    info: { dia_incell: 2.00 }
+    shape: "circle" # "circle" or "hexagon"
+    info: # circle
+      dia_incell: 2.00
+    # info: # hexagon
+    #   dia_incell: 2.00 # 内接円直径
     thk_top: 0.01
     thk_mid: 0.00
-    thk_wall: 0.500
   outcell:
-    shape: "octagon"
-    info:
-      {
-        thk_outcell: 1.0,
-        thk_wall_outcell: 0.5,
-        chamfer_deg: 30.0,
-        chamfer_ratio_x: 0.345,
-        chamfer_ratio_y: 0.300,
-      }
+    shape: "octagon" # "octagon" or "square"
+    num_oc: 1 # number per pitch_x
+    info: # octagon
+      thk_outcell: 1.0
+      thk_wall_outcell: 0.5
+    # info: # square
+    #   thk_outcell: 1.0
+    #   thk_wall_outcell: 0.5
   slit:
     thk_slit: 0.5
     ratio_slit: 3 # int
-  offset_x: False # bool
-  offset_y: False # bool
-# thk_prod: 1.0
-# pitch_x: 2.5000E+00
-# pitch_y: 2.1651E+00
-# pitch_slit: 8.3301E+00
-# thk_i2o: 2.0000E+00
-# thk_cc: 3.0000E-01
-# thk_x1: 7.0000E-01
-# thk_y1: 2.0000E-01
-# lim_slit: 2.6000E+01
+
+#
+logging_config:
+  version: 1
+  formatters:
+    default:
+      format: "%(asctime)s - %(module)s(%(funcName)s:LINE:%(lineno)d) - %(levelname)s - %(message)s"
+  handlers:
+    console:
+      class: logging.StreamHandler
+      level: DEBUG
+      formatter: default
+      stream: ext://sys.stdout
+    # file:
+    #   class: logging.FileHandler
+    #   level: DEBUG
+    #   formatter: default
+    #   filename: aapp.log
+    #   mode: w
+    #   encoding: utf-8
+  root:
+    level: ERROR
+    # handlers: [console, file]
+    handlers: [console]

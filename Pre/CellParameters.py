@@ -1,29 +1,25 @@
 from dataclasses import dataclass
 import numpy as np
 
-from ValidParams import ValidParams
-
 
 @dataclass(frozen=True)
-class CellParameters:
+class CommonParameters:
+    dia_incell: float
+    dia_land: float
+    dia_land_out: float
+    ln_prod: float
+    offset_x: bool
+    offset_y: bool
+    ratio_slit: int
     shape_incell: str
     shape_outcell: str
-    dia_incell: float
-    thk_top: float
-    thk_mid: float
-    thk_wall: float
     thk_c2s: float
-    dia_prod: float
-    thk_prod: float
+    thk_mid: float
     thk_outcell: float
-    thk_wall_outcell: float
     thk_slit: float
-    ratio_slit: int
-    mode_cell: bool
-    mode_slit: bool
-    ln_prod: float
-    chamfer_deg: float = np.pi / 4
-    chamfer_size: float = 0.25
+    thk_top: float
+    thk_wall: float
+    thk_wall_outcell: float
 
     @property
     def pitch_x(self) -> float:
@@ -59,7 +55,7 @@ class CellParameters:
         if num <= 0:
             raise ValueError("lim_slit: num must be greater than 0")
 
-        ds1 = 0.5 * self.dia_prod - self.thk_prod
+        ds1 = 0.5 * self.dia_land - self.dia_land_out
         ds2 = (num - 1) * self.pitch_y
 
         if self.shape_incell == "circle":
@@ -67,140 +63,3 @@ class CellParameters:
         elif self.shape_incell == "hexagon":
             # heptagon
             return ds1 - ds2 - self.thk_i2o - 0.5 * self.dia_incell / np.cos(np.pi / 6)
-
-    @property
-    def thk_x1(self) -> float:
-        """アウトセルのC面取りX方向サイズ"""
-        height = self.thk_outcell
-        width = self.pitch_x - self.thk_wall_outcell
-        if height < width:
-            return self.chamfer_size * height * np.tan(self.chamfer_deg)
-        else:
-            return self.chamfer_size * width
-
-    @property
-    def thk_y1(self) -> float:
-        """アウトセルのC面取りY方向サイズ"""
-        height = self.thk_outcell
-        width = self.pitch_x - self.thk_wall_outcell
-        if height < width:
-            return self.chamfer_size * height
-        else:
-            return self.chamfer_size * width / np.tan(self.chamfer_deg)
-
-    def __post_init__(self) -> None:
-        self.__type_check()
-        self.__value_check()  # 負数チェック、ゼロを許容するかどうか
-        self.__validate()  # 各パラメータの成立性のチェック
-
-    def __type_check(self) -> None:
-        name = self.__class__.__name__
-        if not isinstance(self.shape_incell, str):
-            raise TypeError(f"{name}: 'shape_incell' must be a string")
-        if not isinstance(self.shape_outcell, str):
-            raise TypeError(f"{name}: 'shape_outcell' must be a string")
-        if not isinstance(self.dia_incell, float):
-            raise TypeError(f"{name}: 'dia_incell' must be a float")
-        if not isinstance(self.thk_top, float):
-            raise TypeError(f"{name}: 'thk_top' must be a float")
-        if not isinstance(self.thk_mid, float):
-            raise TypeError(f"{name}: 'thk_mid' must be a float")
-        if not isinstance(self.thk_wall, float):
-            raise TypeError(f"{name}: 'thk_wall' must be a float")
-        if not isinstance(self.thk_c2s, float):
-            raise TypeError(f"{name}: 'thk_c2s' must be a float")
-        if not isinstance(self.dia_prod, float):
-            raise TypeError(f"{name}: 'dia_prod' must be a float")
-        if not isinstance(self.thk_prod, float):
-            raise TypeError(f"{name}: 'thk_prod' must be a float")
-        if not isinstance(self.thk_outcell, float):
-            raise TypeError(f"{name}: 'thk_outcell' must be a float")
-        if not isinstance(self.thk_wall_outcell, float):
-            raise TypeError(f"{name}: 'thk_wall_outcell' must be a float")
-        if not isinstance(self.thk_slit, float):
-            raise TypeError(f"{name}: 'thk_slit' must be a float")
-        if not isinstance(self.ratio_slit, int):
-            raise TypeError(f"{name}: 'ratio_slit' must be an integer")
-        if not isinstance(self.mode_cell, bool):
-            raise TypeError(f"{name}: 'mode_cell' must be a boolean")
-        if not isinstance(self.mode_slit, bool):
-            raise TypeError(f"{name}: 'mode_slit' must be a boolean")
-        if not isinstance(self.ln_prod, float):
-            raise TypeError(f"{name}: 'ln_prod' must be a float")
-
-    def __value_check(self) -> None:
-        name = self.__class__.__name__
-        if self.shape_incell not in ["circle", "hexagon"]:
-            raise ValueError(f"{name}: 'mode_cell' must be either 'circle' or 'hexagon'")
-        if self.shape_outcell not in ["octagon"]:
-            raise ValueError(f"{name}: 'mode_cell' must be 'octagon'")
-        if self.dia_incell <= 0:
-            raise ValueError(f"{name}: 'dia_incell' must be greater than 0")
-        if self.thk_top < 0:
-            raise ValueError(f"{name}: 'thk_top' must be greater than or equal to 0")
-        if self.thk_mid < 0:
-            raise ValueError(f"{name}: 'thk_mid' must be greater than or equal to 0")
-        if self.thk_wall <= 0:
-            raise ValueError(f"{name}: 'thk_wall' must be greater than 0")
-        if self.thk_c2s <= 0:
-            raise ValueError(f"{name}: 'thk_c2s' must be greater than 0")
-        if self.dia_prod <= 0:
-            raise ValueError(f"{name}: 'dia_prod' must be greater than 0")
-        if self.thk_prod <= 0:
-            raise ValueError(f"{name}: 'thk_prod' must be greater than 0")
-        if self.thk_outcell <= 0:
-            raise ValueError(f"{name}: 'thk_outcell' must be greater than 0")
-        if self.thk_wall_outcell <= 0:
-            raise ValueError(f"{name}: 'thk_wall_outcell' must be greater than 0")
-        if self.thk_slit <= 0:
-            raise ValueError(f"{name}: 'thk_slit' must be greater than 0")
-        if self.ratio_slit <= 1:
-            raise ValueError(f"{name}: 'ratio_slit' must be greater than 1")
-        if self.ln_prod <= 0:
-            raise ValueError(f"{name}: 'ln_prod' must be greater than 0")
-
-    def __validate(self) -> None:
-        name = self.__class__.__name__
-
-        # dia_prod, dia_incell, thk_prod
-        ValidParams.valid_dia_prod(
-            name,
-            self.dia_prod,
-            self.dia_incell,
-            self.thk_prod,
-        )
-
-        # dia_incell, thk_top, thk_mid
-        ValidParams.valid_dia_incell(
-            name,
-            self.dia_incell,
-            self.thk_top,
-            self.thk_mid,
-        )
-
-        if self.shape_outcell == "octagon":
-            # thk_slit, thk_outcell
-            ValidParams.valid_thk_slit_and_thk_outcell(
-                name,
-                self.thk_outcell,
-                self.thk_y1,
-                self.thk_slit,
-            )
-
-            # thk_slit, pitch_x
-            ValidParams.valid_thk_slit(
-                name,
-                self.thk_slit,
-                self.thk_i2o,
-                self.pitch_x,
-            )
-
-            # thk_outcell, thk_wall_outcell, pitch_x, thk_i2o
-            ValidParams.valid_thk_outcell(
-                name,
-                self.pitch_x,
-                self.thk_wall_outcell,
-                self.thk_outcell,
-                self.thk_i2o,
-                self.thk_x1,
-            )
