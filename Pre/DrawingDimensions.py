@@ -47,8 +47,8 @@ class CheckDimensinons:
 
 @dataclass(frozen=True)
 class CheckProduct:
-    dia_land_out: float
-    dia_land: float
+    dia_outer: float
+    dia_eff: float
     ln_prod: float
     thk_wall: float
     thk_c2s: float
@@ -60,10 +60,10 @@ class CheckProduct:
         self.__value_check()
 
     def __type_check(self) -> None:
-        if not isinstance(self.dia_land_out, float):
-            logger.error("'dia_land_out' must be a float")
-        if not isinstance(self.dia_land, float):
-            logger.error("'dia_land' must be a float")
+        if not isinstance(self.dia_outer, float):
+            logger.error("'dia_outer' must be a float")
+        if not isinstance(self.dia_eff, float):
+            logger.error("'dia_eff' must be a float")
         if not isinstance(self.ln_prod, float):
             logger.error("'ln_prod' must be a float")
         if not isinstance(self.thk_wall, float):
@@ -76,10 +76,10 @@ class CheckProduct:
             logger.error("'offset_y' must be a bool")
 
     def __value_check(self) -> None:
-        if self.dia_land_out <= 0:
-            logger.error("'dia_land_out' <= 0")
-        if self.dia_land <= 0:
-            logger.error("'dia_land' <= 0")
+        if self.dia_outer <= 0:
+            logger.error("'dia_outer' <= 0")
+        if self.dia_eff <= 0:
+            logger.error("'dia_eff' <= 0")
         if self.ln_prod <= 0:
             logger.error("'ln_prod' <= 0")
         if self.thk_wall <= 0:
@@ -91,7 +91,7 @@ class CheckProduct:
 @dataclass(frozen=True)
 class CheckIncell:
     shape: str
-    info: float
+    info: dict
     thk_top: float
     thk_mid: float
 
@@ -163,10 +163,11 @@ class ShapeHexagon:
 class CheckOutcell:
     shape: str
     num_oc: int
-    info: float
+    info: dict
 
     def __post_init__(self) -> None:
         self.__type_check()
+        self.__value_check()
 
     def __type_check(self) -> None:
         if not isinstance(self.shape, str):
@@ -183,6 +184,10 @@ class CheckOutcell:
                 logger.error("Invalid 'outcell shape'")
         else:
             logger.error("'info' must be a dict")
+
+    def __value_check(self) -> None:
+        if self.num_oc < 0:
+            logger.error("'num_oc' < 0")
 
 
 @dataclass(frozen=True)
@@ -233,6 +238,7 @@ class ShapeSquare:
 class CheckSlit:
     thk_slit: float
     ratio_slit: int
+    num_ic_lim: int
 
     def __post_init__(self) -> None:
         self.__type_check()
@@ -243,9 +249,15 @@ class CheckSlit:
             logger.error("'thk_slit' must be a float")
         if not isinstance(self.ratio_slit, int):
             logger.error("'ratio_slit' must be an int")
+        if not isinstance(self.num_ic_lim, int):
+            logger.error("'num_ic_lim' must be an int")
 
     def __value_check(self) -> None:
         if self.thk_slit <= 0:
             logger.error("'thk_slit' <= 0")
         if self.ratio_slit < 1:
             logger.error("'ratio_slit' < 1")
+        if self.num_ic_lim < 0:
+            logger.error("'num_ic_lim' < 0")
+        elif self.num_ic_lim > self.ratio_slit:
+            logger.error("'num_ic_lim' > 'ratio_slit'")

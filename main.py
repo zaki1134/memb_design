@@ -2,7 +2,7 @@ from pathlib import Path
 from logging import getLogger, config
 import argparse
 
-from Pre import CheckDimensinons
+from Pre import CheckDimensinons, dimensions_to_parameters
 
 # from Solver import CellParameters, CircleOctagon, HexgonOctagon
 from Utils import read_yaml
@@ -21,13 +21,17 @@ def main() -> None:
 
     # ロギング設定
     config.dictConfig(data["logging_config"])
-    logger = getLogger(__name__)
+    # logger = getLogger(__name__)
 
-    # 口金図面寸法の読込み
+    # 口金図面寸法の確認
     dd = data["draing_dimensions"]
     CheckDimensinons(**dd)
 
-    # 口金図面寸法からセルパラメータへの変換と成立性確認
+    # 口金図面寸法からセルパラメータへの変換
+    param = dimensions_to_parameters(dd)
+
+    # セルパラメータの成立性確認
+    del param
 
     # try:
     #     params = CellParameters(**inp)

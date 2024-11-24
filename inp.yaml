@@ -2,8 +2,8 @@
 draing_dimensions:
   shrinkage_rate: 1.052
   product:
-    dia_land_out: 60.0
-    dia_land: 54.0
+    dia_outer: 60.0
+    dia_eff: 54.0
     ln_prod: 1000.0
     thk_wall: 0.500
     thk_c2s: 0.500
@@ -19,7 +19,7 @@ draing_dimensions:
     thk_mid: 0.00
   outcell:
     shape: "octagon" # "octagon" or "square"
-    num_oc: 1 # number per pitch_x
+    num_oc: 1 # int pitch_x当たりのアウトセル数
     info: # octagon
       thk_outcell: 1.0
       thk_wall_outcell: 0.5
@@ -29,6 +29,7 @@ draing_dimensions:
   slit:
     thk_slit: 0.5
     ratio_slit: 3 # int
+    num_ic_lim: 1 # int Y軸末端の許容セルの列数
 
 #
 logging_config:
