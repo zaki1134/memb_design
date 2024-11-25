@@ -1,30 +1,36 @@
+import yaml
+import argparse
 from pathlib import Path
 from logging import getLogger, config
-import argparse
-
-from Pre import CheckDimensinons, dimensions_to_parameters
-
-# from Solver import CellParameters, CircleOctagon, HexgonOctagon
-from Utils import read_yaml
 
 
-def main() -> None:
+def logsetting() -> dict:
     # コマンドライン引数の取得
     # parser = argparse.ArgumentParser(description="Cell Layout Generator")
     # parser.add_argument("--i", type=str, required=False, help="inp.yaml")
     # args = parser.parse_args()
 
-    # inp.yamlの読込み
-    # data = read_yaml(Path(args.i).resolve())
-    inp_path = Path("inp.yaml").absolute()  # temp
-    data = read_yaml(inp_path)  # temp
+    # "inp.yaml"の読込み
+    # inp_path = Path(args.i).resolve()
+    # with open(inp_path, "r", encoding="utf-8") as file:
+    #     data = yaml.safe_load(file)
 
     # ロギング設定
+    # config.dictConfig(data["logging_config"])
+
+    # TEMP
+    inp_path = Path("inp.yaml").absolute()
+    with open(inp_path, "r", encoding="utf-8") as file:
+        data = yaml.safe_load(file)
     config.dictConfig(data["logging_config"])
-    # logger = getLogger(__name__)
+    return data
+
+
+def main(data: dict) -> None:
+    from Pre import CheckDimensinons, dimensions_to_parameters
 
     # 口金図面寸法の確認
-    dd = data["draing_dimensions"]
+    dd = data["drawing_dimensions"]
     CheckDimensinons(**dd)
 
     # 口金図面寸法からセルパラメータへの変換
@@ -52,7 +58,8 @@ def main() -> None:
 
 
 if __name__ == "__main__":
+    data = logsetting()
     try:
-        main()
+        main(data)
     except Exception as e:
         print(e)

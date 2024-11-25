@@ -19,30 +19,36 @@ class CheckDimensinons:
     def __type_check(self) -> None:
         if not isinstance(self.shrinkage_rate, float):
             logger.error("'shrinkage_rate' must be a float")
+            raise TypeError
 
         if isinstance(self.product, dict):
             CheckProduct(**self.product)
         else:
             logger.error("'product' must be a dict")
+            raise TypeError
 
         if isinstance(self.incell, dict):
             CheckIncell(**self.incell)
         else:
             logger.error("'incell' must be a dict")
+            raise TypeError
 
         if isinstance(self.outcell, dict):
             CheckOutcell(**self.outcell)
         else:
             logger.error("'outcell' must be a dict")
+            raise TypeError
 
         if isinstance(self.slit, dict):
             CheckSlit(**self.slit)
         else:
             logger.error("'slit' must be a dict")
+            raise TypeError
 
     def __value_check(self) -> None:
         if self.shrinkage_rate <= 0:
             logger.error("'shrinkage_rate' <= 0")
+            raise ValueError
 
 
 @dataclass(frozen=True)
@@ -62,30 +68,42 @@ class CheckProduct:
     def __type_check(self) -> None:
         if not isinstance(self.dia_outer, float):
             logger.error("'dia_outer' must be a float")
+            raise TypeError
         if not isinstance(self.dia_eff, float):
             logger.error("'dia_eff' must be a float")
+            raise TypeError
         if not isinstance(self.ln_prod, float):
             logger.error("'ln_prod' must be a float")
+            raise TypeError
         if not isinstance(self.thk_wall, float):
             logger.error("'thk_wall' must be a float")
+            raise TypeError
         if not isinstance(self.thk_c2s, float):
             logger.error("'thk_c2s' must be a float")
+            raise TypeError
         if not isinstance(self.offset_x, bool):
             logger.error("'offset_x' must be a bool")
+            raise TypeError
         if not isinstance(self.offset_y, bool):
             logger.error("'offset_y' must be a bool")
+            raise TypeError
 
     def __value_check(self) -> None:
         if self.dia_outer <= 0:
             logger.error("'dia_outer' <= 0")
+            raise ValueError
         if self.dia_eff <= 0:
             logger.error("'dia_eff' <= 0")
+            raise ValueError
         if self.ln_prod <= 0:
             logger.error("'ln_prod' <= 0")
+            raise ValueError
         if self.thk_wall <= 0:
             logger.error("'thk_wall' <= 0")
+            raise ValueError
         if self.thk_c2s <= 0:
             logger.error("'thk_c2s' <= 0")
+            raise ValueError
 
 
 @dataclass(frozen=True)
@@ -102,6 +120,7 @@ class CheckIncell:
     def __type_check(self) -> None:
         if not isinstance(self.shape, str):
             logger.error("'shape' must be a str")
+            raise TypeError
 
         if isinstance(self.info, dict):
             if self.shape == "circle":
@@ -110,19 +129,25 @@ class CheckIncell:
                 ShapeHexagon(**self.info)
             else:
                 logger.error("Invalid 'incell shape'")
+                raise TypeError
         else:
             logger.error("'info' must be a dict")
+            raise TypeError
 
         if not isinstance(self.thk_top, float):
             logger.error("'thk_top' must be a float")
+            raise TypeError
         if not isinstance(self.thk_mid, float):
             logger.error("'thk_mid' must be a float")
+            raise TypeError
 
     def __value_check(self) -> None:
         if self.thk_top < 0:
             logger.error("'thk_top' < 0")
+            raise ValueError
         if self.thk_mid < 0:
             logger.error("'thk_mid' < 0")
+            raise ValueError
 
 
 @dataclass(frozen=True)
@@ -136,10 +161,12 @@ class ShapeCircle:
     def __type_check(self) -> None:
         if not isinstance(self.dia_incell, float):
             logger.error("'dia_incell' must be a float")
+            raise TypeError
 
     def __value_check(self) -> None:
         if self.dia_incell <= 0:
             logger.error("'dia_incell' <= 0")
+            raise ValueError
 
 
 @dataclass(frozen=True)
@@ -153,10 +180,12 @@ class ShapeHexagon:
     def __type_check(self) -> None:
         if not isinstance(self.dia_incell, float):
             logger.error("'dia_incell' must be a float")
+            raise TypeError
 
     def __value_check(self) -> None:
         if self.dia_incell <= 0:
             logger.error("'dia_incell' <= 0")
+            raise ValueError
 
 
 @dataclass(frozen=True)
@@ -172,8 +201,10 @@ class CheckOutcell:
     def __type_check(self) -> None:
         if not isinstance(self.shape, str):
             logger.error("'shape' must be a str")
+            raise TypeError
         if not isinstance(self.num_oc, int):
             logger.error("'num_oc' must be an int")
+            raise TypeError
 
         if isinstance(self.info, dict):
             if self.shape == "octagon":
@@ -182,12 +213,15 @@ class CheckOutcell:
                 ShapeSquare(**self.info)
             else:
                 logger.error("Invalid 'outcell shape'")
+                raise TypeError
         else:
             logger.error("'info' must be a dict")
+            raise TypeError
 
     def __value_check(self) -> None:
         if self.num_oc < 0:
             logger.error("'num_oc' < 0")
+            raise ValueError
 
 
 @dataclass(frozen=True)
@@ -202,14 +236,18 @@ class ShapeOctagon:
     def __type_check(self) -> None:
         if not isinstance(self.thk_outcell, float):
             logger.error("'thk_outcell' must be a float")
+            raise TypeError
         if not isinstance(self.thk_wall_outcell, float):
             logger.error("'thk_wall_outcell' must be a float")
+            raise TypeError
 
     def __value_check(self) -> None:
         if self.thk_outcell <= 0:
             logger.error("'thk_outcell' <= 0")
+            raise ValueError
         if self.thk_wall_outcell <= 0:
             logger.error("'thk_wall_outcell' <= 0")
+            raise ValueError
 
 
 @dataclass(frozen=True)
@@ -224,14 +262,18 @@ class ShapeSquare:
     def __type_check(self) -> None:
         if not isinstance(self.thk_outcell, float):
             logger.error("'thk_outcell' must be a float")
+            raise TypeError
         if not isinstance(self.thk_wall_outcell, float):
             logger.error("'thk_wall_outcell' must be a float")
+            raise TypeError
 
     def __value_check(self) -> None:
         if self.thk_outcell <= 0:
             logger.error("'thk_outcell' <= 0")
+            raise ValueError
         if self.thk_wall_outcell <= 0:
             logger.error("'thk_wall_outcell' <= 0")
+            raise ValueError
 
 
 @dataclass(frozen=True)
@@ -247,17 +289,24 @@ class CheckSlit:
     def __type_check(self) -> None:
         if not isinstance(self.thk_slit, float):
             logger.error("'thk_slit' must be a float")
+            raise TypeError
         if not isinstance(self.ratio_slit, int):
             logger.error("'ratio_slit' must be an int")
+            raise TypeError
         if not isinstance(self.num_ic_lim, int):
             logger.error("'num_ic_lim' must be an int")
+            raise TypeError
 
     def __value_check(self) -> None:
         if self.thk_slit <= 0:
             logger.error("'thk_slit' <= 0")
+            raise ValueError
         if self.ratio_slit < 1:
             logger.error("'ratio_slit' < 1")
+            raise ValueError
         if self.num_ic_lim < 0:
             logger.error("'num_ic_lim' < 0")
+            raise ValueError
         elif self.num_ic_lim > self.ratio_slit:
             logger.error("'num_ic_lim' > 'ratio_slit'")
+            raise ValueError

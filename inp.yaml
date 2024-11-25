@@ -1,5 +1,5 @@
 # unit:mm
-draing_dimensions:
+drawing_dimensions:
   shrinkage_rate: 1.052
   product:
     dia_outer: 60.0
