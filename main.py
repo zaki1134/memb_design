@@ -22,7 +22,8 @@ def loggingsetup() -> dict:
 
 
 def main(data: dict) -> None:
-    from Pre import CheckDimensinons, drawing_to_product
+    from Pre import CheckDimensinons, drawing_to_product, ValidationProcess
+    from Solver import CellParameters
 
     # 口金図面寸法の確認
     dwg_dims = data["drawing_dimensions"]
@@ -31,7 +32,7 @@ def main(data: dict) -> None:
     # 口金図面寸法から製品寸法への変換
     prod_dims = drawing_to_product(dwg_dims)
 
-    # セルパラメータの成立性確認
+    # 製品寸法の成立性確認
     # del proddims
 
     # try:

@@ -4,7 +4,7 @@ import numpy as np
 
 
 @dataclass(frozen=True)
-class ProductDimensions:
+class CellParameters:
     dia_outer: float
     dia_eff: float
     ln_prod: float

@@ -4,7 +4,7 @@ import json
 import numpy as np
 import pandas as pd
 
-from Solver.PolygonVertex import octagon
+from Utils.PolygonVertex import octagon
 
 
 def read_yaml(file_path: str) -> dict:
