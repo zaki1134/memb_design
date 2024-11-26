@@ -108,7 +108,6 @@ class CheckProduct:
 
 @dataclass(frozen=True)
 class CheckIncell:
-    shape: str
     info: dict
     thk_top: float
     thk_mid: float
@@ -116,24 +115,12 @@ class CheckIncell:
     def __post_init__(self) -> None:
         self.__type_check()
         self.__value_check()
+        self.__dict_check()
 
     def __type_check(self) -> None:
-        if not isinstance(self.shape, str):
-            logger.error("'shape' must be a str")
+        if not isinstance(self.info, dict):
+            logger.error("'incell info' must be a dict")
             raise TypeError
-
-        if isinstance(self.info, dict):
-            if self.shape == "circle":
-                ShapeCircle(**self.info)
-            elif self.shape == "hexagon":
-                ShapeHexagon(**self.info)
-            else:
-                logger.error("Invalid 'incell shape'")
-                raise TypeError
-        else:
-            logger.error("'info' must be a dict")
-            raise TypeError
-
         if not isinstance(self.thk_top, float):
             logger.error("'thk_top' must be a float")
             raise TypeError
@@ -149,9 +136,23 @@ class CheckIncell:
             logger.error("'thk_mid' < 0")
             raise ValueError
 
+    def __dict_check(self) -> None:
+        if isinstance(self.info["shape"], str):
+            if self.info["shape"] == "circle":
+                ShapeCircle(**self.info)
+            elif self.info["shape"] == "hexagon":
+                ShapeHexagon(**self.info)
+            else:
+                logger.error("Invalid 'incell info shape'")
+                raise ValueError
+        else:
+            logger.error("'incell info shape' must be a str")
+            raise TypeError
+
 
 @dataclass(frozen=True)
 class ShapeCircle:
+    shape: str
     dia_incell: float
 
     def __post_init__(self) -> None:
@@ -171,6 +172,7 @@ class ShapeCircle:
 
 @dataclass(frozen=True)
 class ShapeHexagon:
+    shape: str
     dia_incell: float
 
     def __post_init__(self) -> None:
@@ -190,32 +192,20 @@ class ShapeHexagon:
 
 @dataclass(frozen=True)
 class CheckOutcell:
-    shape: str
-    num_oc: int
     info: dict
+    num_oc: int
 
     def __post_init__(self) -> None:
         self.__type_check()
         self.__value_check()
+        self.__dict_check()
 
     def __type_check(self) -> None:
-        if not isinstance(self.shape, str):
-            logger.error("'shape' must be a str")
+        if not isinstance(self.info, dict):
+            logger.error("'info' must be a dict")
             raise TypeError
         if not isinstance(self.num_oc, int):
             logger.error("'num_oc' must be an int")
-            raise TypeError
-
-        if isinstance(self.info, dict):
-            if self.shape == "octagon":
-                ShapeOctagon(**self.info)
-            elif self.shape == "square":
-                ShapeSquare(**self.info)
-            else:
-                logger.error("Invalid 'outcell shape'")
-                raise TypeError
-        else:
-            logger.error("'info' must be a dict")
             raise TypeError
 
     def __value_check(self) -> None:
@@ -223,9 +213,23 @@ class CheckOutcell:
             logger.error("'num_oc' < 0")
             raise ValueError
 
+    def __dict_check(self) -> None:
+        if isinstance(self.info["shape"], str):
+            if self.info["shape"] == "octagon":
+                ShapeOctagon(**self.info)
+            elif self.info["shape"] == "square":
+                ShapeSquare(**self.info)
+            else:
+                logger.error("Invalid 'outcell info shape'")
+                raise ValueError
+        else:
+            logger.error("'outcell info shape' must be a str")
+            raise TypeError
+
 
 @dataclass(frozen=True)
 class ShapeOctagon:
+    shape: str
     thk_outcell: float
     thk_wall_outcell: float
 
@@ -252,6 +256,7 @@ class ShapeOctagon:
 
 @dataclass(frozen=True)
 class ShapeSquare:
+    shape: str
     thk_outcell: float
     thk_wall_outcell: float
 

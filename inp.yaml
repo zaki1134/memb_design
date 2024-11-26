@@ -10,22 +10,17 @@ drawing_dimensions:
     offset_x: False # bool
     offset_y: False # bool
   incell:
-    shape: "circle" # "circle" or "hexagon"
-    info: # circle
+    info:
+      shape: "circle"
       dia_incell: 2.00
-    # info: # hexagon
-    #   dia_incell: 2.00 # 内接円直径
     thk_top: 0.01
     thk_mid: 0.00
   outcell:
-    shape: "octagon" # "octagon" or "square"
-    num_oc: 1 # int pitch_x当たりのアウトセル数
-    info: # octagon
+    info:
+      shape: "octagon"
       thk_outcell: 1.0
       thk_wall_outcell: 0.5
-    # info: # square
-    #   thk_outcell: 1.0
-    #   thk_wall_outcell: 0.5
+    num_oc: 1 # int pitch_x当たりのアウトセル数
   slit:
     thk_slit: 0.5
     ratio_slit: 3 # int

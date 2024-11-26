@@ -4,40 +4,35 @@ from pathlib import Path
 from logging import getLogger, config
 
 
-def logsetting() -> dict:
+def loggingsetup() -> dict:
     # コマンドライン引数の取得
-    # parser = argparse.ArgumentParser(description="Cell Layout Generator")
-    # parser.add_argument("--i", type=str, required=False, help="inp.yaml")
-    # args = parser.parse_args()
+    parser = argparse.ArgumentParser(description="Cell Layout Generator")
+    parser.add_argument("--i", type=str, required=False, help="inp.yaml")
+    args = parser.parse_args()
 
     # "inp.yaml"の読込み
-    # inp_path = Path(args.i).resolve()
-    # with open(inp_path, "r", encoding="utf-8") as file:
-    #     data = yaml.safe_load(file)
-
-    # ロギング設定
-    # config.dictConfig(data["logging_config"])
-
-    # TEMP
-    inp_path = Path("inp.yaml").absolute()
+    inp_path = Path(args.i).resolve()
     with open(inp_path, "r", encoding="utf-8") as file:
         data = yaml.safe_load(file)
+
+    # ロギング設定
     config.dictConfig(data["logging_config"])
+
     return data
 
 
 def main(data: dict) -> None:
-    from Pre import CheckDimensinons, dimensions_to_parameters
+    from Pre import CheckDimensinons, drawing_to_product
 
     # 口金図面寸法の確認
-    dd = data["drawing_dimensions"]
-    CheckDimensinons(**dd)
+    dwg_dims = data["drawing_dimensions"]
+    CheckDimensinons(**dwg_dims)
 
-    # 口金図面寸法からセルパラメータへの変換
-    param = dimensions_to_parameters(dd)
+    # 口金図面寸法から製品寸法への変換
+    prod_dims = drawing_to_product(dwg_dims)
 
     # セルパラメータの成立性確認
-    del param
+    # del proddims
 
     # try:
     #     params = CellParameters(**inp)
@@ -58,8 +53,10 @@ def main(data: dict) -> None:
 
 
 if __name__ == "__main__":
-    data = logsetting()
+    data = loggingsetup()
     try:
         main(data)
     except Exception as e:
-        print(e)
+        print(e.__class__)
+
+    print("===== Done =====")
