@@ -4,8 +4,16 @@ from logging import getLogger
 logger = getLogger(__name__)
 
 
-@dataclass(frozen=True)
+@dataclass
 class CheckDimensinons:
+    """inp.yamlの内容をチェックするクラス
+
+    Raises
+    ------
+    ValueError
+        入力値が負数の場合
+    """
+
     shrinkage_rate: float
     product: dict
     incell: dict
@@ -13,45 +21,16 @@ class CheckDimensinons:
     slit: dict
 
     def __post_init__(self) -> None:
-        self.__type_check()
-        self.__value_check()
-
-    def __type_check(self) -> None:
-        if not isinstance(self.shrinkage_rate, float):
-            logger.error("'shrinkage_rate' must be a float")
-            raise TypeError
-
-        if isinstance(self.product, dict):
-            CheckProduct(**self.product)
-        else:
-            logger.error("'product' must be a dict")
-            raise TypeError
-
-        if isinstance(self.incell, dict):
-            CheckIncell(**self.incell)
-        else:
-            logger.error("'incell' must be a dict")
-            raise TypeError
-
-        if isinstance(self.outcell, dict):
-            CheckOutcell(**self.outcell)
-        else:
-            logger.error("'outcell' must be a dict")
-            raise TypeError
-
-        if isinstance(self.slit, dict):
-            CheckSlit(**self.slit)
-        else:
-            logger.error("'slit' must be a dict")
-            raise TypeError
-
-    def __value_check(self) -> None:
         if self.shrinkage_rate <= 0:
             logger.error("'shrinkage_rate' <= 0")
             raise ValueError
+        CheckProduct(**self.product)
+        CheckIncell(**self.incell)
+        CheckOutcell(**self.outcell)
+        CheckSlit(**self.slit)
 
 
-@dataclass(frozen=True)
+@dataclass
 class CheckProduct:
     dia_outer: float
     dia_eff: float
@@ -62,33 +41,6 @@ class CheckProduct:
     offset_y: bool
 
     def __post_init__(self) -> None:
-        self.__type_check()
-        self.__value_check()
-
-    def __type_check(self) -> None:
-        if not isinstance(self.dia_outer, float):
-            logger.error("'dia_outer' must be a float")
-            raise TypeError
-        if not isinstance(self.dia_eff, float):
-            logger.error("'dia_eff' must be a float")
-            raise TypeError
-        if not isinstance(self.ln_prod, float):
-            logger.error("'ln_prod' must be a float")
-            raise TypeError
-        if not isinstance(self.thk_wall, float):
-            logger.error("'thk_wall' must be a float")
-            raise TypeError
-        if not isinstance(self.thk_c2s, float):
-            logger.error("'thk_c2s' must be a float")
-            raise TypeError
-        if not isinstance(self.offset_x, bool):
-            logger.error("'offset_x' must be a bool")
-            raise TypeError
-        if not isinstance(self.offset_y, bool):
-            logger.error("'offset_y' must be a bool")
-            raise TypeError
-
-    def __value_check(self) -> None:
         if self.dia_outer <= 0:
             logger.error("'dia_outer' <= 0")
             raise ValueError
@@ -106,29 +58,21 @@ class CheckProduct:
             raise ValueError
 
 
-@dataclass(frozen=True)
+@dataclass
 class CheckIncell:
     info: dict
     thk_top: float
     thk_mid: float
 
     def __post_init__(self) -> None:
-        self.__type_check()
-        self.__value_check()
-        self.__dict_check()
+        if self.info["shape"] == "circle":
+            ShapeCircle(**self.info)
+        elif self.info["shape"] == "hexagon":
+            ShapeHexagon(**self.info)
+        else:
+            logger.error("Invalid 'incell info shape'")
+            raise ValueError
 
-    def __type_check(self) -> None:
-        if not isinstance(self.info, dict):
-            logger.error("'incell info' must be a dict")
-            raise TypeError
-        if not isinstance(self.thk_top, float):
-            logger.error("'thk_top' must be a float")
-            raise TypeError
-        if not isinstance(self.thk_mid, float):
-            logger.error("'thk_mid' must be a float")
-            raise TypeError
-
-    def __value_check(self) -> None:
         if self.thk_top < 0:
             logger.error("'thk_top' < 0")
             raise ValueError
@@ -136,173 +80,33 @@ class CheckIncell:
             logger.error("'thk_mid' < 0")
             raise ValueError
 
-    def __dict_check(self) -> None:
-        if isinstance(self.info["shape"], str):
-            if self.info["shape"] == "circle":
-                ShapeCircle(**self.info)
-            elif self.info["shape"] == "hexagon":
-                ShapeHexagon(**self.info)
-            else:
-                logger.error("Invalid 'incell info shape'")
-                raise ValueError
-        else:
-            logger.error("'incell info shape' must be a str")
-            raise TypeError
 
-
-@dataclass(frozen=True)
-class ShapeCircle:
-    shape: str
-    dia_incell: float
-
-    def __post_init__(self) -> None:
-        self.__type_check()
-        self.__value_check()
-
-    def __type_check(self) -> None:
-        if not isinstance(self.dia_incell, float):
-            logger.error("'dia_incell' must be a float")
-            raise TypeError
-
-    def __value_check(self) -> None:
-        if self.dia_incell <= 0:
-            logger.error("'dia_incell' <= 0")
-            raise ValueError
-
-
-@dataclass(frozen=True)
-class ShapeHexagon:
-    shape: str
-    dia_incell: float
-
-    def __post_init__(self) -> None:
-        self.__type_check()
-        self.__value_check()
-
-    def __type_check(self) -> None:
-        if not isinstance(self.dia_incell, float):
-            logger.error("'dia_incell' must be a float")
-            raise TypeError
-
-    def __value_check(self) -> None:
-        if self.dia_incell <= 0:
-            logger.error("'dia_incell' <= 0")
-            raise ValueError
-
-
-@dataclass(frozen=True)
+@dataclass
 class CheckOutcell:
     info: dict
     num_oc: int
 
     def __post_init__(self) -> None:
-        self.__type_check()
-        self.__value_check()
-        self.__dict_check()
+        if self.info["shape"] == "octagon":
+            ShapeOctagon(**self.info)
+        elif self.info["shape"] == "square":
+            ShapeSquare(**self.info)
+        else:
+            logger.error("Invalid 'outcell info shape'")
+            raise ValueError
 
-    def __type_check(self) -> None:
-        if not isinstance(self.info, dict):
-            logger.error("'info' must be a dict")
-            raise TypeError
-        if not isinstance(self.num_oc, int):
-            logger.error("'num_oc' must be an int")
-            raise TypeError
-
-    def __value_check(self) -> None:
         if self.num_oc < 0:
             logger.error("'num_oc' < 0")
             raise ValueError
 
-    def __dict_check(self) -> None:
-        if isinstance(self.info["shape"], str):
-            if self.info["shape"] == "octagon":
-                ShapeOctagon(**self.info)
-            elif self.info["shape"] == "square":
-                ShapeSquare(**self.info)
-            else:
-                logger.error("Invalid 'outcell info shape'")
-                raise ValueError
-        else:
-            logger.error("'outcell info shape' must be a str")
-            raise TypeError
 
-
-@dataclass(frozen=True)
-class ShapeOctagon:
-    shape: str
-    thk_outcell: float
-    thk_wall_outcell: float
-
-    def __post_init__(self) -> None:
-        self.__type_check()
-        self.__value_check()
-
-    def __type_check(self) -> None:
-        if not isinstance(self.thk_outcell, float):
-            logger.error("'thk_outcell' must be a float")
-            raise TypeError
-        if not isinstance(self.thk_wall_outcell, float):
-            logger.error("'thk_wall_outcell' must be a float")
-            raise TypeError
-
-    def __value_check(self) -> None:
-        if self.thk_outcell <= 0:
-            logger.error("'thk_outcell' <= 0")
-            raise ValueError
-        if self.thk_wall_outcell <= 0:
-            logger.error("'thk_wall_outcell' <= 0")
-            raise ValueError
-
-
-@dataclass(frozen=True)
-class ShapeSquare:
-    shape: str
-    thk_outcell: float
-    thk_wall_outcell: float
-
-    def __post_init__(self) -> None:
-        self.__type_check()
-        self.__value_check()
-
-    def __type_check(self) -> None:
-        if not isinstance(self.thk_outcell, float):
-            logger.error("'thk_outcell' must be a float")
-            raise TypeError
-        if not isinstance(self.thk_wall_outcell, float):
-            logger.error("'thk_wall_outcell' must be a float")
-            raise TypeError
-
-    def __value_check(self) -> None:
-        if self.thk_outcell <= 0:
-            logger.error("'thk_outcell' <= 0")
-            raise ValueError
-        if self.thk_wall_outcell <= 0:
-            logger.error("'thk_wall_outcell' <= 0")
-            raise ValueError
-
-
-@dataclass(frozen=True)
+@dataclass
 class CheckSlit:
     thk_slit: float
     ratio_slit: int
     num_ic_lim: int
 
     def __post_init__(self) -> None:
-        self.__type_check()
-        self.__value_check()
-
-    def __type_check(self) -> None:
-        if not isinstance(self.thk_slit, float):
-            logger.error("'thk_slit' must be a float")
-            raise TypeError
-        if not isinstance(self.ratio_slit, int):
-            logger.error("'ratio_slit' must be an int")
-            raise TypeError
-        if not isinstance(self.num_ic_lim, int):
-            logger.error("'num_ic_lim' must be an int")
-            raise TypeError
-
-    def __value_check(self) -> None:
         if self.thk_slit <= 0:
             logger.error("'thk_slit' <= 0")
             raise ValueError
@@ -314,4 +118,62 @@ class CheckSlit:
             raise ValueError
         elif self.num_ic_lim > self.ratio_slit:
             logger.error("'num_ic_lim' > 'ratio_slit'")
+            raise ValueError
+
+
+# incell info shape
+
+
+@dataclass
+class ShapeCircle:
+    shape: str
+    dia_incell: float
+
+    def __post_init__(self) -> None:
+        if self.dia_incell <= 0:
+            logger.error("'dia_incell' <= 0")
+            raise ValueError
+
+
+@dataclass
+class ShapeHexagon:
+    shape: str
+    dia_incell: float
+
+    def __post_init__(self) -> None:
+        if self.dia_incell <= 0:
+            logger.error("'dia_incell' <= 0")
+            raise ValueError
+
+
+# outcell info shape
+
+
+@dataclass
+class ShapeOctagon:
+    shape: str
+    thk_outcell: float
+    thk_wall_outcell: float
+
+    def __post_init__(self) -> None:
+        if self.thk_outcell <= 0:
+            logger.error("'thk_outcell' <= 0")
+            raise ValueError
+        if self.thk_wall_outcell <= 0:
+            logger.error("'thk_wall_outcell' <= 0")
+            raise ValueError
+
+
+@dataclass
+class ShapeSquare:
+    shape: str
+    thk_outcell: float
+    thk_wall_outcell: float
+
+    def __post_init__(self) -> None:
+        if self.thk_outcell <= 0:
+            logger.error("'thk_outcell' <= 0")
+            raise ValueError
+        if self.thk_wall_outcell <= 0:
+            logger.error("'thk_wall_outcell' <= 0")
             raise ValueError

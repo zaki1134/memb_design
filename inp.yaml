@@ -1,30 +1,30 @@
 # unit:mm
 drawing_dimensions:
-  shrinkage_rate: 1.052
+  shrinkage_rate: !!float 1.052
   product:
-    dia_outer: 60.0
-    dia_eff: 54.0
-    ln_prod: 1000.0
-    thk_wall: 0.500
-    thk_c2s: 0.500
-    offset_x: False # bool
-    offset_y: False # bool
+    dia_outer: !!float 60.0
+    dia_eff: !!float 54.0
+    ln_prod: !!float 1000.0
+    thk_wall: !!float 0.500
+    thk_c2s: !!float 0.500
+    offset_x: !!bool False
+    offset_y: !!bool False
   incell:
     info:
-      shape: "circle"
-      dia_incell: 2.00
-    thk_top: 0.01
-    thk_mid: 0.00
+      shape: "circle" # "circle" or "hexagon"
+      dia_incell: !!float 2.00
+    thk_top: !!float 0.01
+    thk_mid: !!float 0.00
   outcell:
     info:
-      shape: "octagon"
-      thk_outcell: 1.0
-      thk_wall_outcell: 0.5
-    num_oc: 1 # int pitch_x当たりのアウトセル数
+      shape: "octagon" # "octagon" or "square"
+      thk_outcell: !!float 1.0
+      thk_wall_outcell: !!float 0.5
+    num_oc: !!int 1 # pitch_x当たりのアウトセル数
   slit:
-    thk_slit: 0.5
-    ratio_slit: 3 # int
-    num_ic_lim: 1 # int Y軸末端の許容セルの列数
+    thk_slit: !!float 0.5
+    ratio_slit: !!int 3
+    num_ic_lim: !!int 1 # Y軸末端の許容セルの列数
 
 #
 logging_config:
