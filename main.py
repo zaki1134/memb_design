@@ -2,6 +2,7 @@ import yaml
 import argparse
 from pathlib import Path
 from logging import getLogger, config
+import traceback
 
 
 def logging_setup() -> dict:
@@ -13,7 +14,10 @@ def logging_setup() -> dict:
     # "inp.yaml"の読込み エラーチェック追記
     inp_path = Path(args.i).resolve()
     with open(inp_path, "r", encoding="utf-8") as file:
-        data = yaml.safe_load(file)
+        try:
+            data = yaml.safe_load(file)
+        except Exception:
+            raise Exception
 
     # ロギング設定
     config.dictConfig(data["logging_config"])
@@ -48,10 +52,9 @@ def main(data: dict) -> None:
 
 
 if __name__ == "__main__":
-    data = logging_setup()
     try:
+        data = logging_setup()
         main(data)
-    except Exception as e:
-        print(e.__class__)
-
-    print("===== Done =====")
+        print("===== Done =====")
+    except Exception:
+        traceback.print_exc()

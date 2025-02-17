@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Union
 
 import numpy as np
 
@@ -7,8 +8,31 @@ class Parameters:
     def __init__(self, data: dict) -> None:
         self.shrinkage_rate = data["shrinkage_rate"]
         self.product = Product(**data["product"])
-        self.incell = Incell(**data["incell"])
-        self.outcell = Outcell(**data["outcell"])
+
+        if data["incell"]["info"]["shape"] == "circle":
+            self.incell = Incell(
+                info=ShapeCircle(**data["incell"]["info"]),
+                thk_mid=data["incell"]["thk_mid"],
+                thk_top=data["incell"]["thk_top"],
+            )
+        elif data["incell"]["info"]["shape"] == "hexagon":
+            self.incell = Incell(
+                info=ShapeHexagon(**data["incell"]["info"]),
+                thk_mid=data["incell"]["thk_mid"],
+                thk_top=data["incell"]["thk_top"],
+            )
+
+        if data["outcell"]["info"]["shape"] == "octagon":
+            self.outcell = Outcell(
+                info=ShapeOctagon(**data["outcell"]["info"]),
+                num_oc=data["outcell"]["num_oc"],
+            )
+        elif data["outcell"]["info"]["shape"] == "square":
+            self.outcell = Outcell(
+                info=ShapeSquare(**data["outcell"]["info"]),
+                num_oc=data["outcell"]["num_oc"],
+            )
+
         self.slit = Slit(**data["slit"])
 
     @property
@@ -22,22 +46,30 @@ class Parameters:
         return value
 
     @property
-    def ratio_outcell(self) -> float:
+    def aspect_ratio_outcell(self) -> float:
         return self.outcell.info.thk_outcell / self.thk_outcell_x
 
     @property
     def chamfer_x(self) -> float:
-        if self.ratio_outcell >= 1:
-            return 0.25 * self.thk_outcell_x
+        """octagonのみ"""
+        if self.outcell.info.shape in ["octagon"]:
+            if self.aspect_ratio_outcell >= 1:
+                return 0.25 * self.thk_outcell_x
+            else:
+                return self.chamfer_y * np.tan(np.pi / 3)
         else:
-            return self.chamfer_y * np.tan(np.pi / 3)
+            return 0.0
 
     @property
     def chamfer_y(self) -> float:
-        if self.ratio_outcell >= 1:
-            return self.chamfer_x * np.tan(np.pi / 6)
+        """octagonのみ"""
+        if self.outcell.info.shape in ["octagon"]:
+            if self.aspect_ratio_outcell >= 1:
+                return self.chamfer_x * np.tan(np.pi / 6)
+            else:
+                return 0.25 * self.outcell.info.thk_wall_outcell
         else:
-            return 0.25 * self.outcell.info.thk_wall_outcell
+            return 0.0
 
     @property
     def pitch_x(self) -> float:
@@ -101,7 +133,7 @@ class ShapeHexagon:
 
 @dataclass
 class Incell:
-    info: ShapeCircle | ShapeHexagon
+    info: Union[ShapeCircle, ShapeHexagon]
     thk_top: float
     thk_mid: float
 
@@ -122,7 +154,7 @@ class ShapeSquare:
 
 @dataclass
 class Outcell:
-    info: ShapeOctagon | ShapeSquare
+    info: Union[ShapeOctagon, ShapeSquare]
     num_oc: int
 
 

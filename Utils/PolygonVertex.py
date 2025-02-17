@@ -2,7 +2,22 @@ import numpy as np
 
 
 def slit(radius_prod: float, thk_slit: float, y: float) -> np.ndarray:
-    """スリット形状を多角形としたときの頂点座標を計算"""
+    """スリット形状を多角形としたときの頂点座標を計算
+
+    Parameters
+    ----------
+    radius_prod : float
+        製品半径
+    thk_slit : float
+        スリット幅
+    y : float
+        Y軸方向位置
+
+    Returns
+    -------
+    np.ndarray
+        Shape : (20, 2)
+    """
     ref_points_y = np.array([y - 0.5 * thk_slit, y + 0.5 * thk_slit])
     ref_points_x = radius_prod * np.cos(np.arcsin(ref_points_y / radius_prod))
     ref_angles = np.arctan2(ref_points_y, ref_points_x)
@@ -22,7 +37,18 @@ def slit(radius_prod: float, thk_slit: float, y: float) -> np.ndarray:
 
 
 def hexagon(radius_incircle: float) -> np.ndarray:
-    """六角形の頂点座標を計算"""
+    """正六角形の頂点座標を計算
+
+    Parameters
+    ----------
+    radius_incircle : float
+        内接円半径
+
+    Returns
+    -------
+    np.ndarray
+        Shape : (6, 2)
+    """
     circumscribed_radius = radius_incircle / np.cos(np.pi / 6)
     angles = np.deg2rad(np.arange(-30, 330, 60))
     hex_points = circumscribed_radius * np.column_stack((np.cos(angles), np.sin(angles)))
@@ -30,7 +56,20 @@ def hexagon(radius_incircle: float) -> np.ndarray:
 
 
 def heptagon(radius_incircle: float, rot_angle: float = 0.0) -> np.ndarray:
-    """七角形の頂点座標を計算"""
+    """七角形の頂点座標を計算
+
+    Parameters
+    ----------
+    radius_incircle : float
+        内接円半径
+    rot_angle : float, optional
+        回転角度, by default 0.0
+
+    Returns
+    -------
+    np.ndarray
+        Shape : (7, 2)
+    """
     circumscribed_radius = radius_incircle / np.cos(np.pi / 6)
     angles = np.deg2rad(np.arange(-30, 270, 60))
     hex_points = circumscribed_radius * np.column_stack((np.cos(angles), np.sin(angles)))
@@ -50,14 +89,31 @@ def heptagon(radius_incircle: float, rot_angle: float = 0.0) -> np.ndarray:
 
 
 def octagon(width: float, hight: float, x1: float, y1: float) -> np.ndarray:
-    """八角形の頂点座標を計算"""
+    """八角形の頂点座標を計算
+
+    Parameters
+    ----------
+    width : float
+        X方向
+    hight : float
+        Y方向
+    x1 : float
+        chamfer_x
+    y1 : float
+        chamfer_y
+
+    Returns
+    -------
+    np.ndarray
+        Shape : (8, 2)
+    """
     dx = 0.5 * width
     dy = 0.5 * hight
     oct_points = np.array(
         [
             (dx, dy - y1),
             (dx - x1, dy),
-            (-(dx + x1), dy),
+            (-(dx - x1), dy),
             (-dx, dy - y1),
         ]
     )
@@ -65,3 +121,31 @@ def octagon(width: float, hight: float, x1: float, y1: float) -> np.ndarray:
     rot_mat = np.array([[np.cos(np.pi), -np.sin(np.pi)], [np.sin(np.pi), np.cos(np.pi)]])
     dummy_points = np.dot(oct_points, rot_mat)
     return np.vstack([oct_points, dummy_points])
+
+
+def square(width: float, hight: float) -> np.ndarray:
+    """四角形の頂点座標を計算
+
+    Parameters
+    ----------
+    width : float
+        X方向
+    hight : float
+        Y方向
+
+    Returns
+    -------
+    np.ndarray
+        Shape : (4, 2)
+    """
+    dx = 0.5 * width
+    dy = 0.5 * hight
+    square_points = np.array(
+        [
+            (dx, dy),
+            (-dx, dy),
+            (-dx, -dy),
+            (dx, -dy),
+        ]
+    )
+    return square_points

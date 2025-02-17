@@ -1,9 +1,15 @@
+import sys
+from pathlib import Path
+
+sys.path.append(str(Path.cwd().parent))
+
 from dataclasses import dataclass
 from logging import getLogger
 
 import numpy as np
+from shapely.geometry import Polygon
 
-from ..Utils import Parameters
+from Utils import Parameters, hexagon, octagon, square
 
 logger = getLogger(__name__)
 
@@ -45,32 +51,46 @@ class ValidationProcess:
         flag_1 = np.isclose(self.prod_dims.slit.thk_slit, 2 * value)
         flag_2 = self.prod_dims.slit.thk_slit >= value
         if flag_1 and flag_2:
-            logger.error("'thk_slit' and 'in-hex' contact.")
+            logger.error("'thk_slit' and 'in-hex' overlap.")
+            raise ValueError
+
+        # outcell vs in-hex
+        flag = ValidationFunctions.valid_thk_outcell(self.prod_dims)
+        if flag:
+            logger.error("'outcell' and 'in-hex' overlap.")
             raise ValueError
 
 
-# Shapelyにしよう
 class ValidationFunctions:
     @staticmethod
-    def valid_thk_outcell(
-        name: str,
-        pitch_x: float,
-        thk_wall_outcell: float,
-        thk_outcell: float,
-        thk_i2o: float,
-        thk_x1: float,
-    ) -> None:
-        """thk_outcellの値が適切かどうかをチェック. outcell vs in-hex
-        incell-outcell間の境界をアウトセル角Y位置が通過するかどうかを確認.メッシュの対称性のため.
-        """
-        xxx = 0.5 * (pitch_x - thk_wall_outcell) - thk_x1
-        # if ValidParams().__line_i2o(xxx, thk_i2o, pitch_x) < 0.5 * thk_outcell:
-        #     message = [
-        #         f"{name}: 'thk_outcell' is too large",
-        #         f"thk_outcell: {thk_outcell}",
-        #         f"thk_wall_outcell: {thk_wall_outcell}",
-        #         f"pitch_x: {pitch_x}",
-        #         f"thk_i2o: {thk_i2o}",
-        #     ]
-        #     raise ValueError("\n".join(message))
-        return xxx
+    def valid_thk_outcell(par: Parameters) -> bool:
+        # outcell
+        pitch_oc = par.outcell.info.thk_wall_outcell + par.thk_outcell_x
+        offset = np.arange(0, par.outcell.num_oc, dtype=int) * pitch_oc
+
+        if par.outcell.info.shape == "octagon":
+            outcell = octagon(
+                par.thk_outcell_x,
+                par.outcell.info.thk_wall_outcell,
+                par.chamfer_x,
+                par.chamfer_y,
+            )
+        elif par.outcell.info.shape == "square":
+            outcell = square(par.thk_outcell_x, par.outcell.info.thk_wall_outcell)
+
+        outcell_mat = np.tile(outcell, (par.outcell.num_oc, 1, 1))
+        outcell_mat[:, :, 0] += offset[:, np.newaxis]
+
+        # in-hex
+        inhex = hexagon(0.5 * par.pitch_x)
+        inhex[:, 0] += 0.5 * par.pitch_x
+        inhex[:, 1] += par.thk_i2o
+
+        # make Polygon
+        inhex = Polygon(inhex)
+        outcells = [Polygon(cell) for cell in outcell_mat]
+
+        # check
+        intersects = [inhex.intersects(cell) for cell in outcells]
+
+        return np.any(intersects)
