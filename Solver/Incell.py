@@ -1,7 +1,7 @@
 import numpy as np
 
-from Solver import CellParameters, FuncCollection
-from Utils import PolygonVertex
+from Solver import CellParameters
+from Utils import FuncCollection, PolygonVertex
 
 
 class Common:

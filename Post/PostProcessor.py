@@ -10,7 +10,7 @@ import matplotlib.patches as patches
 from matplotlib.gridspec import GridSpec
 
 from Utils import PolygonVertex
-from Solver import FuncCollection
+from Utils import FuncCollection
 from Utils import CellParameters
 
 
