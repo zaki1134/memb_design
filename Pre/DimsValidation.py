@@ -1,8 +1,3 @@
-import sys
-from pathlib import Path
-
-sys.path.append(str(Path.cwd().parent))
-
 from dataclasses import dataclass
 from logging import getLogger
 
@@ -63,7 +58,7 @@ class ValidationProcess:
 
 class ValidationFunctions:
     @staticmethod
-    def valid_thk_outcell(par: Parameters) -> bool:
+    def valid_thk_outcell(par: Parameters) -> np.bool:
         # outcell
         pitch_oc = par.outcell.info.thk_wall_outcell + par.thk_outcell_x
         offset = np.arange(0, par.outcell.num_oc, dtype=int) * pitch_oc

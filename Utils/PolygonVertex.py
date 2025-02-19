@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def slit(radius_prod: float, thk_slit: float, y: float) -> np.ndarray:
+def slit(radius_prod: float, thk_slit: float, offset_y: float) -> np.ndarray:
     """スリット形状を多角形としたときの頂点座標を計算
 
     Parameters
@@ -10,7 +10,7 @@ def slit(radius_prod: float, thk_slit: float, y: float) -> np.ndarray:
         製品半径
     thk_slit : float
         スリット幅
-    y : float
+    offset_y : float
         Y軸方向位置
 
     Returns
@@ -18,7 +18,7 @@ def slit(radius_prod: float, thk_slit: float, y: float) -> np.ndarray:
     np.ndarray
         Shape : (20, 2)
     """
-    ref_points_y = np.array([y - 0.5 * thk_slit, y + 0.5 * thk_slit])
+    ref_points_y = np.array([offset_y - 0.5 * thk_slit, offset_y + 0.5 * thk_slit])
     ref_points_x = radius_prod * np.cos(np.arcsin(ref_points_y / radius_prod))
     ref_angles = np.arctan2(ref_points_y, ref_points_x)
 
@@ -31,18 +31,20 @@ def slit(radius_prod: float, thk_slit: float, y: float) -> np.ndarray:
 
     sorted_angles = np.arctan2(coordinates[:, 1], coordinates[:, 0])
     sorted_angles[sorted_angles < 0] += 2 * np.pi
-    slit_points = coordinates[np.argsort(sorted_angles)]
+    res = coordinates[np.argsort(sorted_angles)]
 
-    return slit_points
+    return res
 
 
-def hexagon(radius_incircle: float) -> np.ndarray:
+def hexagon(radius_incircle: float, offset: tuple = (0, 0)) -> np.ndarray:
     """正六角形の頂点座標を計算
 
     Parameters
     ----------
     radius_incircle : float
         内接円半径
+    offset : tuple, optional
+        中心座標, by default (0, 0)
 
     Returns
     -------
@@ -51,11 +53,13 @@ def hexagon(radius_incircle: float) -> np.ndarray:
     """
     circumscribed_radius = radius_incircle / np.cos(np.pi / 6)
     angles = np.deg2rad(np.arange(-30, 330, 60))
-    hex_points = circumscribed_radius * np.column_stack((np.cos(angles), np.sin(angles)))
-    return hex_points
+    res = circumscribed_radius * np.column_stack((np.cos(angles), np.sin(angles)))
+    res += np.array(offset)
+
+    return res
 
 
-def heptagon(radius_incircle: float, rot_angle: float = 0.0) -> np.ndarray:
+def heptagon(radius_incircle: float, rot_angle: float = 0.0, offset: tuple = (0, 0)) -> np.ndarray:
     """七角形の頂点座標を計算
 
     Parameters
@@ -64,6 +68,8 @@ def heptagon(radius_incircle: float, rot_angle: float = 0.0) -> np.ndarray:
         内接円半径
     rot_angle : float, optional
         回転角度, by default 0.0
+    offset : tuple, optional
+        中心座標, by default (0, 0)
 
     Returns
     -------
@@ -85,10 +91,12 @@ def heptagon(radius_incircle: float, rot_angle: float = 0.0) -> np.ndarray:
     radian = np.deg2rad(rot_angle)
     rot_mat = np.array([[np.cos(radian), -np.sin(radian)], [np.sin(radian), np.cos(radian)]])
     res = np.dot(res, rot_mat)
+    res += np.array(offset)
+
     return res
 
 
-def octagon(width: float, hight: float, x1: float, y1: float) -> np.ndarray:
+def octagon(width: float, hight: float, x1: float, y1: float, offset: tuple = (0, 0)) -> np.ndarray:
     """八角形の頂点座標を計算
 
     Parameters
@@ -101,6 +109,8 @@ def octagon(width: float, hight: float, x1: float, y1: float) -> np.ndarray:
         chamfer_x
     y1 : float
         chamfer_y
+    offset : tuple, optional
+        中心座標, by default (0, 0)
 
     Returns
     -------
@@ -120,10 +130,13 @@ def octagon(width: float, hight: float, x1: float, y1: float) -> np.ndarray:
 
     rot_mat = np.array([[np.cos(np.pi), -np.sin(np.pi)], [np.sin(np.pi), np.cos(np.pi)]])
     dummy_points = np.dot(oct_points, rot_mat)
-    return np.vstack([oct_points, dummy_points])
+    res = np.vstack([oct_points, dummy_points])
+    res += np.array(offset)
+
+    return res
 
 
-def square(width: float, hight: float) -> np.ndarray:
+def square(width: float, hight: float, offset: tuple = (0, 0)) -> np.ndarray:
     """四角形の頂点座標を計算
 
     Parameters
@@ -132,6 +145,8 @@ def square(width: float, hight: float) -> np.ndarray:
         X方向
     hight : float
         Y方向
+    offset : tuple, optional
+        中心座標, by default (0, 0)
 
     Returns
     -------
@@ -140,7 +155,7 @@ def square(width: float, hight: float) -> np.ndarray:
     """
     dx = 0.5 * width
     dy = 0.5 * hight
-    square_points = np.array(
+    res = np.array(
         [
             (dx, dy),
             (-dx, dy),
@@ -148,4 +163,6 @@ def square(width: float, hight: float) -> np.ndarray:
             (dx, -dy),
         ]
     )
-    return square_points
+    res += np.array(offset)
+
+    return res

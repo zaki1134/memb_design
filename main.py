@@ -1,60 +1,72 @@
+import sys
 import yaml
 import argparse
 from pathlib import Path
 from logging import getLogger, config
-import traceback
+
+from Pre import Dimensions
+from Solver import LayoutProcesser
+from Utils import Parameters
 
 
-def logging_setup() -> dict:
-    # コマンドライン引数の取得
-    parser = argparse.ArgumentParser(description="Cell Layout Generator")
-    parser.add_argument("--i", type=str, required=False, help="inp.yaml")
-    args = parser.parse_args()
-
-    # "inp.yaml"の読込み エラーチェック追記
-    inp_path = Path(args.i).resolve()
-    with open(inp_path, "r", encoding="utf-8") as file:
-        try:
+def logging_setup(inp_path: Path) -> dict:
+    # "inp.yaml"の読込み
+    try:
+        with open(inp_path, "r", encoding="utf-8") as file:
             data = yaml.safe_load(file)
-        except Exception:
-            raise Exception
+    except Exception:
+        raise Exception
 
-    # ロギング設定
+    # config設定
+    data["logging_config"]["handlers"]["file"]["filename"] = inp_path.parent / "log.txt"
     config.dictConfig(data["logging_config"])
 
     return data
 
 
 def main(data: dict) -> None:
-    from Pre import CheckDimensinons, dwg_to_prod, ValidationProcess
-    from Utils import Parameters
+    # 図面寸法, 製品寸法の成立性確認
+    dims = Dimensions(data["drawing_dimensions"])
+    dims.execute_check()
+    dims.execute_valid()
 
-    # 口金図面寸法の確認
-    dwg_dims = data["drawing_dimensions"]
-    CheckDimensinons(**dwg_dims)
+    # 配置計算
+    dwg_dims = Parameters(dims.dwg)
+    prod_dims = Parameters(dims.prod)
+    dwg = LayoutProcesser(dwg_dims)
+    prod = LayoutProcesser(prod_dims)
 
-    # 口金図面寸法から製品寸法への変換
-    prod_dims_dict = dwg_to_prod(dwg_dims)
-    prod_dims = Parameters(prod_dims_dict)
+    from pprint import pprint
 
-    # 製品寸法の成立性確認
-    ValidationProcess(prod_dims)
-
-    # 配置計算 Solve
+    print(type(dwg_dims.shrinkage_rate))
+    print(dwg_dims.shrinkage_rate)
 
     # ファイル出力
-    # layout.csv, params.json(dwg_dims, prod_dims, incell配置、outcell配置、slit配置)
-    # Utils.FileManager Quadrantの外だし
+    # drawing_info.json(dims.dwg, dwg_prop, incell配置, outcell配置, slit配置)
+    # product_info.json(dims.prod, prod_prop, incell配置, outcell配置, slit配置)
+    # layout.csv
 
-    # post processer 外だし 見直し 各種計算の実装
-
-    del prod_dims
+    del dwg, prod
 
 
 if __name__ == "__main__":
+    # コマンドライン引数の取得
+    parser = argparse.ArgumentParser(description="Cell Layout Generator")
+    parser.add_argument("--i", type=str, required=True, help="inp.yaml")
+    args = parser.parse_args()
+
+    # ロギング設定
     try:
-        data = logging_setup()
-        main(data)
-        print("===== Done =====")
+        inp_path = Path(args.i).resolve()
+        data = logging_setup(inp_path)
     except Exception:
-        traceback.print_exc()
+        print("Error: Failed to load inp.yaml")
+        sys.exit(1)
+
+    logger = getLogger("root")
+
+    try:
+        main(data)
+        logger.info("===== Done =====")
+    except Exception as e:
+        logger.exception(e)

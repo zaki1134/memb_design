@@ -38,14 +38,13 @@ logging_config:
       level: DEBUG
       formatter: default
       stream: ext://sys.stdout
-    # file:
-    #   class: logging.FileHandler
-    #   level: DEBUG
-    #   formatter: default
-    #   filename: aapp.log
-    #   mode: w
-    #   encoding: utf-8
+    file:
+      class: logging.FileHandler
+      level: DEBUG
+      formatter: default
+      filename: app.log
+      mode: w
+      encoding: utf-8
   root:
-    level: ERROR
-    # handlers: [console, file]
-    handlers: [console]
+    level: INFO
+    handlers: [console, file]
